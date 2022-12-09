@@ -1,0 +1,7 @@
+---
+BasedOnStyle: Microsoft
+MaxEmptyLinesToKeep: 3
+PointerAlignment: Left
+AlignConsecutiveAssignments: Consecutive
+AlwaysBreakTemplateDeclarations: Yes
+NamespaceIndentation: All
