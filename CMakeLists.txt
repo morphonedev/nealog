@@ -7,8 +7,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 project(nealog LANGUAGES CXX)
 
-option(nealog_HEADERONLY "When OFF is compiled into a static lib. Default=OFF" OFF)
-message(STATUS "nealog_HEADERONLY=${nealog_HEADERONLY}")
+option(NEALOG_HEADERONLY "When OFF is compiled into a static lib. Default=OFF" OFF)
+message(STATUS "NEALOG_HEADERONLY=${NEALOG_HEADERONLY}")
+set(nealog_HEADERONLY ${NEALOG_HEADERONLY})
 
 #==================
 # logger lib
@@ -18,7 +19,7 @@ if (nealog_HEADERONLY)
     add_library(nealog_ho INTERFACE)
     target_include_directories(nealog_ho INTERFACE
       "${CMAKE_CURRENT_LIST_DIR}/include/" "${CMAKE_CURRENT_LIST_DIR}/src/")
-    target_compile_definitions(nealog_ho INTERFACE NL_INLINE=inline nealog_HEADERONLY=1)
+    target_compile_definitions(nealog_ho INTERFACE NL_INLINE=inline NEALOG_HEADERONLY=1)
     target_precompile_headers(nealog_ho INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/pch.h)
     add_library(nealog::headeronly ALIAS nealog_ho)
 else()
