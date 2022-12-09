@@ -157,6 +157,6 @@ namespace nealog
 
 } // namespace nealog
 
-#ifdef DROELF_HEADERONLY
+#ifdef NEALOG_HEADERONLY
 #include "nealog_impl/LoggerImpl.h"
-#endif // DROELF_HEADERONLY
+#endif // NEALOG_HEADERONLY

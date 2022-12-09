@@ -1,8 +1,8 @@
 #pragma once
 
-#ifndef DROELF_HEADERONLY
+#ifndef NEALOG_HEADERONLY
 #include "nealog/Severity.h"
-#endif // !DROELF_HEADERONLY
+#endif // !NEALOG_HEADERONLY
 
 #include "nealog/Error.h"
 
@@ -14,7 +14,7 @@ namespace nealog
 
 
 
-    DLF_INLINE auto severityToString(Severity severity) -> const std::string
+    NL_INLINE auto severityToString(Severity severity) -> const std::string
     {
         switch (severity)
         {
@@ -41,14 +41,14 @@ namespace nealog
      * WithSeverity
      ******************************/
 
-    DLF_INLINE auto WithSeverity::setSeverity(Severity severity) -> void
+    NL_INLINE auto WithSeverity::setSeverity(Severity severity) -> void
     {
         severity_ = severity;
     }
 
 
 
-    DLF_INLINE auto WithSeverity::getSeverity() noexcept -> Severity
+    NL_INLINE auto WithSeverity::getSeverity() noexcept -> Severity
     {
         return severity_;
     }
