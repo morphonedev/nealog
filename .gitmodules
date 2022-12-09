@@ -1,6 +1,6 @@
 [submodule "thirdparty/catch2"]
 	path = thirdparty/catch2
-	url = git@github.com:CatchOrg/Catch2.git
+	url = https://github.com/CatchOrg/catch2.git
 [submodule "thirdparty/trompeloeil"]
 	path = thirdparty/trompeloeil
-	url = git@github.com:rollbear/trompeloeil.git
+	url = https://github.com/rollbear/trompeloeil.git
