@@ -4,9 +4,24 @@ Nealog is a logging framework supporting C++17. It is developed to support multi
 
 This is made possible by structuring the code in header files and only including those inside the cpp files used for compiling for static libs (technique shamelessly copied from [spdlog](https://github.com/gabime/spdlog)).
 
+
+## Features
+| Core                        |         |
+|:----------------------------|:--------|
+| Configuration through file  | planned |
+| Specify log output format   | planned |
+
+| Sinks             |         |
+|:------------------|:--------|
+| StdOut            | done    |
+| std::stringstream | done    |
+| File              | planned |
+| TCP               | planned |
+| UDP               | planned |
+
 ## Compile
 
-We use CMake as build generation tool.
+Neolog uses CMake as build generation tool.
 
 ```sh
 cmake -G Ninja -B build
