@@ -1,4 +1,5 @@
 # Nealog
+![](https://github.com/MarcSchaetz/nealog/actions/workflows/cmake.yml/badge.svg)
 
 Nealog is a logging framework supporting C++17. It is developed to support multithreading out of the box and can be used headeronly or build as a static library.
 
