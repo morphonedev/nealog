@@ -26,20 +26,8 @@ namespace nealog
       public:
         Logger(const std::string& name) noexcept;
 
-      public:
-        auto addSink(const Sink::SPtr&) -> void override;
-        auto log(Severity, const std::string_view& message) -> void override;
-
-        auto trace(const std::string_view& message) -> void override;
-        auto debug(const std::string_view& message) -> void override;
-        auto info(const std::string_view& message) -> void override;
-        auto warn(const std::string_view& message) -> void override;
-        auto error(const std::string_view& message) -> void override;
-        auto fatal(const std::string_view& message) -> void override;
-
       private:
-        auto setParent() -> void;
-        auto writeToSinks(Severity, const std::string_view& message) -> void;
+        auto setParent() -> void;        
     };
 
 
