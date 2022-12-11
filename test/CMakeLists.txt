@@ -1,6 +1,9 @@
 add_executable(nealog_test)
 
-target_link_libraries(nealog_test PRIVATE gcov Catch2::Catch2WithMain trompeloeil::trompeloeil)
+target_link_libraries(nealog_test PRIVATE Catch2::Catch2WithMain trompeloeil::trompeloeil)
+if(NOT WIN32)
+    target_link_libraries(nealog_test PRIVATE gcov )
+endif()
 
 if(nealog_HEADERONLY)
     target_link_libraries(nealog_test PRIVATE nealog::headeronly)
@@ -15,4 +18,6 @@ include(CTest)
 include(Catch)
 catch_discover_tests(nealog_test)
 
-target_compile_options(nealog_test PRIVATE -fprofile-arcs -ftest-coverage)
+if(NOT WIN32)
+    target_compile_options(nealog_test PRIVATE -fprofile-arcs -ftest-coverage)
+endif()

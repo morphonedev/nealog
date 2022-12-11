@@ -5,7 +5,7 @@
 namespace nealog
 {
 
-    enum Severity
+    enum class Severity
     {
         Trace = 0,
         Debug = 1,

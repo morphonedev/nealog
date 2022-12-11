@@ -129,7 +129,7 @@ namespace nealog
     auto LoggerRegistry<TMutex>::createLogger(const std::string& name) -> LoggerBase::SPtr
     {
         auto logger = std::make_shared<Logger>(name);
-        if (name != "")
+        if (name != ROOT_LOGGER_NAME)
         {
             auto& parentName = getParentName(name);
             auto parent      = getOrCreate(parentName);
