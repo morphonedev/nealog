@@ -16,12 +16,13 @@ namespace nealog
       public:
         virtual ~LoggerBase() = default;
         LoggerBase()          = default;
+        
+        // make it non-copyable and non-assignable
+        LoggerBase(const LoggerBase&) = delete;
+        LoggerBase(LoggerBase&&)      = delete;
 
-        LoggerBase(const LoggerBase&) = default;
-        LoggerBase(LoggerBase&&)      = default;
-
-        auto operator=(const LoggerBase&) -> LoggerBase& = default;
-        auto operator=(LoggerBase&&) -> LoggerBase&      = default;
+        auto operator=(const LoggerBase&) -> LoggerBase& = delete;
+        auto operator=(LoggerBase&&) -> LoggerBase&      = delete;
 
       public:
         virtual auto addSink(const Sink::SPtr&) -> void                     = 0;
