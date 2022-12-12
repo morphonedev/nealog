@@ -14,26 +14,33 @@
 namespace nealog
 {
 
+
     /******************************
-     * LoggerBase
+     * Logger
      ******************************/
     // {{{
 
-    NL_INLINE auto LoggerBase::getSinks() -> const std::vector<Sink::SPtr>
+    NL_INLINE Logger::Logger(const std::string& name) noexcept
+    {
+        name_ = name;
+    }
+
+
+    NL_INLINE auto Logger::getSinks() -> const std::vector<Sink::SPtr>
     {
         return sinks_;
     }
 
 
 
-    NL_INLINE auto LoggerBase::addSink(const Sink::SPtr& sink) -> void
+    NL_INLINE auto Logger::addSink(const Sink::SPtr& sink) -> void
     {
         sinks_.emplace_back(sink);
     }
 
 
 
-    NL_INLINE auto LoggerBase::log(Severity messageSeverity, const std::string_view& message) -> void
+    NL_INLINE auto Logger::log(Severity messageSeverity, const std::string_view& message) -> void
     {
         if (sinks_.empty())
         {
@@ -49,7 +56,7 @@ namespace nealog
 
 
 
-    NL_INLINE auto LoggerBase::writeToSinks(Severity severity, const std::string_view& message) -> void
+    NL_INLINE auto Logger::writeToSinks(Severity severity, const std::string_view& message) -> void
     {
         for (Sink::SPtr& sink : sinks_)
         {
@@ -59,65 +66,52 @@ namespace nealog
 
 
 
-    NL_INLINE auto LoggerBase::trace(const std::string_view& message) -> void
+    NL_INLINE auto Logger::trace(const std::string_view& message) -> void
     {
         log(Severity::Trace, message);
     }
 
 
 
-    NL_INLINE auto LoggerBase::debug(const std::string_view& message) -> void
+    NL_INLINE auto Logger::debug(const std::string_view& message) -> void
     {
         log(Severity::Debug, message);
     }
 
 
 
-    NL_INLINE auto LoggerBase::info(const std::string_view& message) -> void
+    NL_INLINE auto Logger::info(const std::string_view& message) -> void
     {
         log(Severity::Info, message);
     }
 
 
 
-    NL_INLINE auto LoggerBase::warn(const std::string_view& message) -> void
+    NL_INLINE auto Logger::warn(const std::string_view& message) -> void
     {
         log(Severity::Warn, message);
     }
 
 
 
-    NL_INLINE auto LoggerBase::error(const std::string_view& message) -> void
+    NL_INLINE auto Logger::error(const std::string_view& message) -> void
     {
         log(Severity::Error, message);
     }
 
 
 
-    NL_INLINE auto LoggerBase::fatal(const std::string_view& message) -> void
+    NL_INLINE auto Logger::fatal(const std::string_view& message) -> void
     {
         log(Severity::Fatal, message);
     }
 
 
 
-    NL_INLINE auto LoggerBase::setParent(LoggerBase::SPtr parent) -> void
+    NL_INLINE auto Logger::setParent(LoggerBase::SPtr parent) -> void
     {
         parent_ = parent;
     }
-    // }}}
-
-
-
-    /******************************
-     * Logger
-     ******************************/
-    // {{{
-
-    NL_INLINE Logger::Logger(const std::string& name) noexcept
-    {
-        name_ = name;
-    }    
     // }}}
 
 

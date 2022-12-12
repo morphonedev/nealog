@@ -16,34 +16,27 @@ namespace nealog
       public:
         virtual ~LoggerBase() = default;
         LoggerBase()          = default;
+        
+        // make it non-copyable and non-assignable
+        LoggerBase(const LoggerBase&) = delete;
+        LoggerBase(LoggerBase&&)      = delete;
 
-      private:
-        LoggerBase(const LoggerBase&) = default;
-        LoggerBase(LoggerBase&&)      = default;
-
-        auto operator=(const LoggerBase&) -> LoggerBase& = default;
-        auto operator=(LoggerBase&&) -> LoggerBase&      = default;
+        auto operator=(const LoggerBase&) -> LoggerBase& = delete;
+        auto operator=(LoggerBase&&) -> LoggerBase&      = delete;
 
       public:
-        virtual auto addSink(const Sink::SPtr&) -> void;
-        virtual auto log(Severity, const std::string_view& message) -> void;
-
-      public:  
-        auto getSinks() -> const std::vector<Sink::SPtr>;
-        auto trace(const std::string_view& message) -> void;
-        auto debug(const std::string_view& message) -> void;
-        auto info(const std::string_view& message) -> void;
-        auto warn(const std::string_view& message) -> void;
-        auto error(const std::string_view& message) -> void;
-        auto fatal(const std::string_view& message) -> void;
+        virtual auto addSink(const Sink::SPtr&) -> void                     = 0;
+        virtual auto log(Severity, const std::string_view& message) -> void = 0;
+        virtual auto getSinks() -> const std::vector<Sink::SPtr>            = 0;
+        virtual auto trace(const std::string_view& message) -> void         = 0;
+        virtual auto debug(const std::string_view& message) -> void         = 0;
+        virtual auto info(const std::string_view& message) -> void          = 0;
+        virtual auto warn(const std::string_view& message) -> void          = 0;
+        virtual auto error(const std::string_view& message) -> void         = 0;
+        virtual auto fatal(const std::string_view& message) -> void         = 0;
 
       protected:
-        auto writeToSinks(Severity, const std::string_view& message) -> void;
-        auto setParent(LoggerBase::SPtr parent) -> void;
-
-      protected:
-        std::vector<Sink::SPtr> sinks_{};
-        SPtr parent_ = nullptr;
-        std::string name_{};
+        virtual auto writeToSinks(Severity, const std::string_view& message) -> void = 0;
+        virtual auto setParent(LoggerBase::SPtr parent) -> void                      = 0;
     };
 } // namespace nealog
