@@ -17,7 +17,6 @@ namespace nealog
         virtual ~LoggerBase() = default;
         LoggerBase()          = default;
 
-      private:
         LoggerBase(const LoggerBase&) = default;
         LoggerBase(LoggerBase&&)      = default;
 

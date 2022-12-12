@@ -27,19 +27,19 @@ namespace nealog
         Logger(const std::string& name) noexcept;
 
       public:
-        virtual auto addSink(const Sink::SPtr&) -> void override;
-        virtual auto log(Severity, const std::string_view& message) -> void override;
-        virtual auto getSinks() -> const std::vector<Sink::SPtr> override;
-        virtual auto trace(const std::string_view& message) -> void override;
-        virtual auto debug(const std::string_view& message) -> void override;
-        virtual auto info(const std::string_view& message) -> void override;
-        virtual auto warn(const std::string_view& message) -> void override;
-        virtual auto error(const std::string_view& message) -> void override;
-        virtual auto fatal(const std::string_view& message) -> void override;
+        auto addSink(const Sink::SPtr&) -> void override;
+        auto log(Severity, const std::string_view& message) -> void override;
+        auto getSinks() -> const std::vector<Sink::SPtr> override;
+        auto trace(const std::string_view& message) -> void override;
+        auto debug(const std::string_view& message) -> void override;
+        auto info(const std::string_view& message) -> void override;
+        auto warn(const std::string_view& message) -> void override;
+        auto error(const std::string_view& message) -> void override;
+        auto fatal(const std::string_view& message) -> void override;
 
       protected:
-        virtual auto writeToSinks(Severity, const std::string_view& message) -> void override;
-        virtual auto setParent(LoggerBase::SPtr parent) -> void override;
+        auto writeToSinks(Severity, const std::string_view& message) -> void override;
+        auto setParent(LoggerBase::SPtr parent) -> void override;
 
       private:
         auto setParent() -> void;

@@ -35,6 +35,7 @@ namespace nealog
     {
       public:
         using SPtr = std::shared_ptr<Sink>;
+        using UPtr = std::unique_ptr<Sink>;
 
       public:
         virtual ~Sink()                                        = default;
