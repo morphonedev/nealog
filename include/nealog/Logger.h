@@ -29,7 +29,7 @@ namespace nealog
       public:
         auto addSink(const Sink::SPtr&) -> void override;
         auto log(Severity, const std::string_view& message) -> void override;
-
+        auto getSinks() -> const std::vector<Sink::SPtr> override;
         auto trace(const std::string_view& message) -> void override;
         auto debug(const std::string_view& message) -> void override;
         auto info(const std::string_view& message) -> void override;
@@ -37,9 +37,17 @@ namespace nealog
         auto error(const std::string_view& message) -> void override;
         auto fatal(const std::string_view& message) -> void override;
 
+      protected:
+        auto writeToSinks(Severity, const std::string_view& message) -> void override;
+        auto setParent(LoggerBase::SPtr parent) -> void override;
+
       private:
         auto setParent() -> void;
-        auto writeToSinks(Severity, const std::string_view& message) -> void;
+
+      protected:
+        std::vector<Sink::SPtr> sinks_{};
+        SPtr parent_ = nullptr;
+        std::string name_{};
     };
 
 

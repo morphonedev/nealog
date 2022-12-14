@@ -14,25 +14,6 @@
 namespace nealog
 {
 
-    /******************************
-     * LoggerBase
-     ******************************/
-    // {{{
-
-    NL_INLINE auto LoggerBase::getSinks() -> const std::vector<Sink::SPtr>
-    {
-        return sinks_;
-    }
-
-
-
-    NL_INLINE auto LoggerBase::setParent(LoggerBase::SPtr parent) -> void
-    {
-        parent_ = parent;
-    }
-    // }}}
-
-
 
     /******************************
      * Logger
@@ -42,6 +23,12 @@ namespace nealog
     NL_INLINE Logger::Logger(const std::string& name) noexcept
     {
         name_ = name;
+    }
+
+
+    NL_INLINE auto Logger::getSinks() -> const std::vector<Sink::SPtr>
+    {
+        return sinks_;
     }
 
 
@@ -119,6 +106,12 @@ namespace nealog
         log(Severity::Fatal, message);
     }
 
+
+
+    NL_INLINE auto Logger::setParent(LoggerBase::SPtr parent) -> void
+    {
+        parent_ = parent;
+    }
     // }}}
 
 
