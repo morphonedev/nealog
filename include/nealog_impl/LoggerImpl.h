@@ -50,7 +50,8 @@ namespace nealog
 
         if (messageSeverity >= severity_)
         {
-            writeToSinks(messageSeverity, message);
+            std::string formattedMessage = formatter_.format(message);
+            writeToSinks(messageSeverity, formattedMessage);
         }
     }
 
@@ -62,6 +63,20 @@ namespace nealog
         {
             sink->write(severity, message);
         }
+    }
+
+
+
+    NL_INLINE auto Logger::setFormatter(const PatternFormatter& formatter) -> void
+    {
+        formatter_ = formatter;
+    }
+
+
+
+    NL_INLINE auto Logger::getFormatter() const -> const PatternFormatter&
+    {
+        return formatter_;
     }
 
 
