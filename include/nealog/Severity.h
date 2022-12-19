@@ -31,7 +31,7 @@ namespace nealog
 
       public:
         auto setSeverity(Severity) -> void;
-        auto getSeverity() noexcept -> Severity;
+        auto getSeverity() const noexcept-> Severity;
 
       protected:
         Severity severity_ = Severity::Trace;
