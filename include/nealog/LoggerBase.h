@@ -14,20 +14,21 @@ namespace nealog
         using SPtr = std::shared_ptr<LoggerBase>;
 
       public:
-        virtual ~LoggerBase() = default;
-        LoggerBase()          = default;
-        
-        // make it non-copyable and non-assignable
-        LoggerBase(const LoggerBase&) = delete;
-        LoggerBase(LoggerBase&&)      = delete;
+        virtual ~LoggerBase()               = default;
+        LoggerBase()                        = default;
+        LoggerBase(LoggerBase&& other)      = default;
+        LoggerBase& operator=(LoggerBase&&) = default;
 
+        // make it non-copyable and non-assignable
+        LoggerBase(const LoggerBase&)                    = delete;
+        LoggerBase(LoggerBase&)                          = delete;
         auto operator=(const LoggerBase&) -> LoggerBase& = delete;
-        auto operator=(LoggerBase&&) -> LoggerBase&      = delete;
+        auto operator=(LoggerBase&) -> LoggerBase&       = delete;
 
       public:
         virtual auto addSink(const Sink::SPtr&) -> void                     = 0;
         virtual auto log(Severity, const std::string_view& message) -> void = 0;
-        virtual auto getSinks() -> const std::vector<Sink::SPtr>            = 0;
+        virtual auto getSinks() const -> std::vector<Sink::SPtr>            = 0;
         virtual auto trace(const std::string_view& message) -> void         = 0;
         virtual auto debug(const std::string_view& message) -> void         = 0;
         virtual auto info(const std::string_view& message) -> void          = 0;
