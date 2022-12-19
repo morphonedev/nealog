@@ -25,6 +25,12 @@ inline auto requireResultEqualsExpected(Result result, Expected expected) -> voi
     REQUIRE(result == expected);
 }
 
+template <typename Result, typename Expected>
+inline auto requireResultNotEqualsExpected(Result result, Expected expected) -> void
+{
+    REQUIRE(result != expected);
+}
+
 template <typename T>
 inline auto requirePointerNotNull(T* pointer) -> void
 {
