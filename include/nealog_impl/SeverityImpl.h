@@ -48,7 +48,7 @@ namespace nealog
 
 
 
-    NL_INLINE auto WithSeverity::getSeverity() noexcept -> Severity
+    NL_INLINE auto WithSeverity::getSeverity() const noexcept -> Severity 
     {
         return severity_;
     }
