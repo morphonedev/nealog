@@ -20,13 +20,26 @@ namespace nealog
      ******************************/
     // {{{
 
-    NL_INLINE Logger::Logger(const std::string& name) noexcept
+    NL_INLINE Logger::Logger(const std::string_view& name) noexcept
     {
         name_ = name;
     }
 
 
-    NL_INLINE auto Logger::getSinks() -> const std::vector<Sink::SPtr>
+
+    NL_INLINE Logger::Logger(const std::string_view& name, Severity defaultSeverity) noexcept : name_{name}
+    {
+        setSeverity(defaultSeverity);
+    }
+
+    NL_INLINE Logger::Logger(const std::string_view& name, Severity defaultSeverity,
+                             std::vector<Sink::SPtr>&& parentSinks)
+        : name_{name}, sinks_{parentSinks}
+    {
+        setSeverity(defaultSeverity);
+    }
+
+    NL_INLINE auto Logger::getSinks() const -> std::vector<Sink::SPtr>
     {
         return sinks_;
     }
@@ -108,6 +121,13 @@ namespace nealog
 
 
 
+    NL_INLINE auto Logger::getName()-> std::string_view const
+    {
+        return name_;
+    }
+
+
+
     NL_INLINE auto Logger::setParent(LoggerBase::SPtr parent) -> void
     {
         parent_ = parent;
@@ -120,22 +140,5 @@ namespace nealog
     {
         child->setParent(parent);
     }
-
-
-
-    /******************************
-     * Exceptions
-     ******************************/
-
-    NL_INLINE LoggerRegistryException::LoggerRegistryException(const std::string& message)
-        : std::runtime_error(message){};
-
-
-#ifndef NO_LOGGER_WITH_KEY_REGISTERED
-#define NO_LOGGER_WITH_KEY_REGISTERED(key) "No logger with key \"" + key + "\" registered"
-#endif // !NO_LOGGER_WITH_KEY_REGISTERED
-
-    NL_INLINE UnregisteredKeyException::UnregisteredKeyException(const std::string& key)
-        : LoggerRegistryException(NO_LOGGER_WITH_KEY_REGISTERED(key)){};
 
 } // namespace nealog
