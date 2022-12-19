@@ -24,18 +24,23 @@ namespace nealog
         using LoggerBase::LoggerBase;
 
       public:
-        Logger(const std::string& name) noexcept;
+        Logger(const std::string_view& name) noexcept;
+        Logger(const std::string_view& name, Severity defaultSeverity) noexcept;
+        Logger(const std::string_view& name, Severity defaultSeverity, std::vector<Sink::SPtr>&& parentSinks);
 
       public:
         auto addSink(const Sink::SPtr&) -> void override;
         auto log(Severity, const std::string_view& message) -> void override;
-        auto getSinks() -> const std::vector<Sink::SPtr> override;
+        auto getSinks() const -> std::vector<Sink::SPtr> override;
         auto trace(const std::string_view& message) -> void override;
         auto debug(const std::string_view& message) -> void override;
         auto info(const std::string_view& message) -> void override;
         auto warn(const std::string_view& message) -> void override;
         auto error(const std::string_view& message) -> void override;
         auto fatal(const std::string_view& message) -> void override;
+
+      public:
+        auto getName()-> std::string_view const;
 
       protected:
         auto writeToSinks(Severity, const std::string_view& message) -> void override;
@@ -47,30 +52,7 @@ namespace nealog
       protected:
         std::vector<Sink::SPtr> sinks_{};
         SPtr parent_ = nullptr;
-        std::string name_{};
-    };
-
-
-
-    class LoggerRegistryException : public std::runtime_error
-    {
-        using std::runtime_error::runtime_error;
-
-      public:
-        LoggerRegistryException(const std::string& message);
-    };
-
-
-
-    class UnregisteredKeyException : public LoggerRegistryException
-    {
-        using LoggerRegistryException::LoggerRegistryException;
-
-      public:
-        UnregisteredKeyException(const std::string& key);
-
-      private:
-        const char* key_;
+        std::string_view name_{};
     };
 
 
