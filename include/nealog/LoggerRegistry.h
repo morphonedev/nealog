@@ -3,8 +3,10 @@
 #include <string_view>
 #include <unordered_map>
 
+#include "Error.h"
 #include "Logger.h"
 #include "Severity.h"
+#include "Utility.h"
 
 namespace nealog
 {
@@ -12,27 +14,29 @@ namespace nealog
     template <class LoggerClass, class SinkClass, class SeverityClass>
     class LoggerTreeRegistry
     {
-
       public:
-        LoggerTreeRegistry() : delimiter_{'.'}, rootLogger_{LoggerClass(SeverityClass::Trace, rootLoggerName)}
+        using LoggerStorage = std::unordered_map<std::string_view, LoggerClass>;
+
+
+        LoggerTreeRegistry(unsigned char delim = '.')
+            : delimiter_{delim}, rootLogger_{rootLoggerName, SeverityClass::Trace}
         {
         }
-        LoggerClass& getOrCreate(std::string_view name);
-        LoggerClass& getOrCreate(void);
-        void setDelimiter(unsigned char delim);
-        const std::unordered_map<std::string_view, LoggerClass>& getLoggerList();
-        void setBranchSeverity(std::string_view branchRoot, SeverityClass newLevel);
-        void setBranchSeverity(SeverityClass newLevel);
-        void addBranchSink(typename SinkClass::UPtr&& sink);
-        void addBranchSink(std::string_view branchRoot, typename SinkClass::UPtr&& sink);
+        auto getOrCreate(std::string_view name) -> LoggerClass&;
+        auto getOrCreate(void) -> LoggerClass&;
+        auto getLoggerList()->const typename LoggerStorage&;
+        auto setBranchSeverity(std::string_view branchRoot, SeverityClass newLevel) -> void;
+        auto setBranchSeverity(SeverityClass newLevel) -> void;
+        auto addBranchSink(const typename SinkClass::SPtr& sink) -> void;
+        auto addBranchSink(std::string_view branchRoot, const typename SinkClass::SPtr& sink) -> void;
 
       private:
-        LoggerClass& registerLogger(std::string_view name);
+        auto registerLogger(std::string_view name) -> LoggerClass&;
 
       private:
         static constexpr std::string_view rootLoggerName = "root";
         unsigned char delimiter_;
-        std::unordered_map<std::string_view, LoggerClass> loggerTree_;
+        LoggerStorage loggerTree_;
         LoggerClass rootLogger_;
     };
 
@@ -44,7 +48,7 @@ namespace nealog
     // {{{
 
     template <class LoggerClass, class SinkClass, class SeverityClass>
-    LoggerClass& LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::getOrCreate(void)
+    auto LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::getOrCreate(void) -> LoggerClass&
     {
         return rootLogger_;
     }
@@ -52,13 +56,11 @@ namespace nealog
 
 
     template <class LoggerClass, class SinkClass, class SeverityClass>
-    inline LoggerClass& LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::getOrCreate(std::string_view name)
-    {
-        std::cout << "Trying to find logger with name: " << name << std::endl;
+    auto  LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::getOrCreate(std::string_view name) -> LoggerClass&
+    {        
         auto result = loggerTree_.find(name);
         if (result != std::end(loggerTree_))
-        {
-            std::cout << "Found logger with name " << name << std::endl;
+        {            
             return result->second;
         }
         else
@@ -68,17 +70,9 @@ namespace nealog
     }
 
 
-
     template <class LoggerClass, class SinkClass, class SeverityClass>
-    inline void LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::setDelimiter(unsigned char delim)
-    {
-        delimiter_ = delim;
-    }
-
-
-
-    template <class LoggerClass, class SinkClass, class SeverityClass>
-    const std::unordered_map<std::string_view, LoggerClass>& LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::getLoggerList()
+    auto LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::getLoggerList() -> const
+        typename LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::LoggerStorage&
     {
         return loggerTree_;
     }
@@ -87,29 +81,23 @@ namespace nealog
 
     /********************** Private methods *******************************/
     template <class LoggerClass, class SinkClass, class SeverityClass>
-    inline LoggerClass& LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::registerLogger(std::string_view name)
+    auto LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::registerLogger(std::string_view name)-> LoggerClass&
     {
         std::cout << "Registering logger " << name << std::endl;
         auto result = name.rfind(delimiter_);
         if (result != std::string_view::npos) // found at least one delimiter
         {
-            auto& parentLogger = getLogger(name.substr(0, result));
+            LoggerClass& parentLogger = getOrCreate(name.substr(0, result));
             // inherit from parentLogger
             auto result = loggerTree_.emplace(std::make_pair<std::string_view, LoggerClass>(
-                std::string_view(name),
-                Logger(parentLogger.getLevel(), name, parentLogger.getLinkedSinks(), parentLogger.getOwnedSinks())));
-            std::cout << parentLogger.toString() << "'s child logger " << result.first->second.toString()
-                      << " was inserted: " << result.second << std::endl;
+                std::string_view(name), LoggerClass{name, parentLogger.getSeverity(), parentLogger.getSinks()}));
             return (result.first->second);
         }
         else // inherit from root logger
         {
             auto& parentLogger = rootLogger_;
             auto result        = loggerTree_.emplace(std::make_pair<std::string_view, LoggerClass>(
-                std::string_view(name),
-                Logger(parentLogger.getLevel(), name, parentLogger.getLinkedSinks(), parentLogger.getOwnedSinks())));
-            std::cout << parentLogger.toString() << "'s child logger " << result.first->second.toString()
-                      << " was inserted: " << result.second << std::endl;
+                std::string_view(name), LoggerClass(name, parentLogger.getSeverity(), parentLogger.getSinks())));
             return (result.first->second);
         }
         return rootLogger_;
@@ -118,19 +106,24 @@ namespace nealog
 
 
     template <class LoggerClass, class SinkClass, class SeverityClass>
-    void LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::setBranchSeverity(std::string_view branchRoot, SeverityClass newLevel)
+    auto LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::setBranchSeverity(std::string_view branchRoot,
+                                                                                      SeverityClass newLevel) -> void
     {
         auto result = loggerTree_.find(branchRoot);
         if (result != std::end(loggerTree_))
         {
-            result->second.setLevel(newLevel);
+            result->second.setSeverity(newLevel);
         }
-        for (auto& elem : loggerTree_)
+        else
         {
-            if (bzlog::utility::beginswith(elem.first, branchRoot))
+            throw UnregisteredKeyException(std::string{branchRoot});
+        }
+        for (auto& [name, logger] : loggerTree_)
+        {
+            if (utility::beginswith(name, branchRoot))
             {
-                std::cout << elem.first << " is child of " << branchRoot << std::endl;
-                elem.second.setLevel(newLevel);
+                std::cout << name << " is child of " << branchRoot << std::endl;
+                logger.setSeverity(newLevel);
             }
         }
     }
@@ -138,32 +131,50 @@ namespace nealog
 
 
     template <class LoggerClass, class SinkClass, class SeverityClass>
-    void LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::setBranchSeverity(SeverityClass newLevel)
+    auto LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::setBranchSeverity(SeverityClass newLevel) -> void
     {
-        rootLogger_.setLevel(newLevel);
-        for (auto& elem : loggerTree_)
+        rootLogger_.setSeverity(newLevel);
+        for (auto& [name, logger] : loggerTree_)
         {
-            elem.second.setLevel(newLevel);
+            logger.setSeverity(newLevel);
         }
     }
 
 
 
     template <class LoggerClass, class SinkClass, class SeverityClass>
-    void LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::addBranchSink(typename SinkClass::UPtr&& sink)
+    auto LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::addBranchSink(const typename SinkClass::SPtr& sink) -> void
     {
-        auto newsink = rootLogger_.addSink(std::move(sink));
-        for (auto& elem : loggerTree_)
+        rootLogger_.addSink(sink);
+        for (auto& [name, logger] : loggerTree_)
         {
-            elem.second.addLinkedSink(newsink);
+            logger.addSink(sink);
         }
     }
 
 
 
     template <class LoggerClass, class SinkClass, class SeverityClass>
-    void LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::addBranchSink(std::string_view branchRoot, typename SinkClass::UPtr&& sink)
+    auto LoggerTreeRegistry<LoggerClass, SinkClass, SeverityClass>::addBranchSink(std::string_view branchRoot,
+                                                                                  const typename SinkClass::SPtr& sink) -> void
     {
+        auto result = loggerTree_.find(branchRoot);
+        if (result != std::end(loggerTree_))
+        {
+            result->second.addSink(sink);
+        }
+        else
+        {
+            throw UnregisteredKeyException(std::string{branchRoot});
+        }
+        for (auto& [name, logger] : loggerTree_)
+        {
+            if (utility::beginswith(name, branchRoot))
+            {
+                std::cout << name << " is child of " << branchRoot << std::endl;
+                logger.addSink(sink);
+            }
+        }
     }
 
     // }}}
