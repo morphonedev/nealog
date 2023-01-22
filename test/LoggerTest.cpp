@@ -1,14 +1,16 @@
 #include "nealog/Logger.h"
+#include "TestApi.h"
 #include "nealog/Error.h"
+#include "nealog/Formatter.h"
 #include "nealog/Sink.h"
 #include <array>
 #include <catch2/catch_test_macros.hpp>
 #include <iostream>
 #include <memory>
 #include <string>
+#include <thread>
 #include <trompeloeil.hpp>
 #include <vector>
-#include <thread>
 
 using namespace nealog;
 
@@ -223,4 +225,32 @@ TEST_CASE("all sinks should write the message", TAG)
 
     REQUIRE(firstStream.str() == "Message");
     REQUIRE(secondStream.str() == "Message");
+}
+
+
+
+TEST_CASE("format output with formatter", TAG)
+{
+    std::ostringstream stream;
+    auto logger = getLoggerWithStreamSink(stream);
+    logger->log(Severity::Error, nlFormat("Message {}", "but with arg"));
+    REQUIRE(stream.str() == "Message but with arg");
+}
+
+
+
+TEST_CASE("set formatter in logger and log to stream with pattern", TAG)
+{
+    std::ostringstream stream;
+    auto logger = getLoggerWithStreamSink(stream);
+
+    PatternFormatter formatter{"super %(message)"};
+    logger->setFormatter(formatter);
+
+    auto retrievedFormatter = logger->getFormatter();
+
+    requireResultEqualsExpected(retrievedFormatter.getPattern(), formatter.getPattern());
+
+    logger->log(Severity::Error, "Lorem");
+    requireResultEqualsExpected(stream.str(), "super Lorem");
 }

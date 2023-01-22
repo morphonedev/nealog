@@ -32,15 +32,16 @@ namespace nealog
         auto addSink(const Sink::SPtr&) -> void override;
         auto log(Severity, const std::string_view& message) -> void override;
         auto getSinks() const -> std::vector<Sink::SPtr> override;
+        auto setFormatter(const PatternFormatter&) -> void override;
+        auto getFormatter() const -> const PatternFormatter& override;
+        auto getName()-> std::string_view const;
+
         auto trace(const std::string_view& message) -> void override;
         auto debug(const std::string_view& message) -> void override;
         auto info(const std::string_view& message) -> void override;
         auto warn(const std::string_view& message) -> void override;
         auto error(const std::string_view& message) -> void override;
-        auto fatal(const std::string_view& message) -> void override;
-
-      public:
-        auto getName()-> std::string_view const;
+        auto fatal(const std::string_view& message) -> void override;        
 
       protected:
         auto writeToSinks(Severity, const std::string_view& message) -> void override;
@@ -53,6 +54,7 @@ namespace nealog
         std::vector<Sink::SPtr> sinks_{};
         SPtr parent_ = nullptr;
         std::string_view name_{};
+        PatternFormatter formatter_{""};
     };
 
 

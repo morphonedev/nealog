@@ -2,7 +2,7 @@ add_executable(nealog_test)
 
 target_link_libraries(nealog_test PRIVATE Catch2::Catch2WithMain trompeloeil::trompeloeil)
 if(NOT WIN32)
-    target_link_libraries(nealog_test PRIVATE gcov )
+    target_link_libraries(nealog_test PRIVATE gcov)
 endif()
 
 if(nealog_HEADERONLY)

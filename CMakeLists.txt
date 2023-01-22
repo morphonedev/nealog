@@ -24,17 +24,21 @@ endfunction()
 # ==================
 # logger lib
 # ==================
+add_subdirectory(thirdparty/fmt)
+
 if(nealog_HEADERONLY)
     # header only --------------------------------
     add_library(nealog_ho INTERFACE)
     target_include_directories(nealog_ho INTERFACE "${CMAKE_CURRENT_LIST_DIR}/include/"
                                                    "${CMAKE_CURRENT_LIST_DIR}/src/")
 
-    target_compile_definitions(nealog_ho INTERFACE NL_INLINE=inline NEALOG_HEADERONLY=1)
+    target_compile_definitions(nealog_ho INTERFACE NL_INLINE=inline
+        NEALOG_HEADERONLY=1 FMT_HEADER_ONLY=1)
 
     enable_precompiled_headers_if_supported(nealog_ho INTERFACE)
 
     add_library(nealog::headeronly ALIAS nealog_ho)
+    target_link_libraries(nealog_ho INTERFACE fmt)
 else()
     # static --------------------------------------
     add_library(nealog)
@@ -43,6 +47,7 @@ else()
     target_include_directories(nealog PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include/")
     message(STATUS "${CMAKE_CURRENT_LIST_DIR}/include/")
     target_compile_definitions(nealog PRIVATE NL_INLINE=)
+    target_link_libraries(nealog PUBLIC fmt)
     add_subdirectory(src)
 endif()
 
