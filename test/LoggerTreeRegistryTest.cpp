@@ -235,12 +235,12 @@ TEST_CASE("Recursivly adding sink adds it to all children of subtree logger", TA
     auto& childLogger   = registry.getOrCreate("child.subchild.somelogger");
     auto& siblingLogger = registry.getOrCreate("sibling.subsibling.somelogger");
     registry.addBranchSink("child.subchild", mainSink);
-    auto& subtreeSinks = registry.getOrCreate("child.subchild").getSinks();
+    auto subtreeSinks = registry.getOrCreate("child.subchild").getSinks();
     auto& childLoggers = registry.getLoggerList();
     for (auto& child_logger : childLoggers)
     {
         bool found{false};
-        auto& childSinks = child_logger.second.getSinks();
+        auto childSinks = child_logger.second.getSinks();
         for (auto& csink : childSinks)
         {
             if (csink.get() == mainSink.get())
