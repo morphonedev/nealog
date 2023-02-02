@@ -3,6 +3,8 @@
 #include "nealog/Logger.h"
 #include "nealog/LoggerRegistry.h"
 #include "nealog/Sink.h"
+
+#include <atomic>
 #include <catch2/catch_test_macros.hpp>
 #include <chrono>
 #include <iostream>
