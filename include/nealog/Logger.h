@@ -31,14 +31,14 @@ namespace nealog
         auto getSinks() const -> std::vector<Sink::SPtr> override;
         auto setFormatter(const PatternFormatter&) -> void override;
         auto getFormatter() const -> const PatternFormatter& override;
-        auto getName()-> std::string_view const;
+        auto getName() -> std::string_view const;
 
         auto trace(std::string_view message) -> void override;
         auto debug(std::string_view message) -> void override;
         auto info(std::string_view message) -> void override;
         auto warn(std::string_view message) -> void override;
         auto error(std::string_view message) -> void override;
-        auto fatal(std::string_view message) -> void override;        
+        auto fatal(std::string_view message) -> void override;
 
       protected:
         auto writeToSinks(Severity, std::string_view message) -> void override;
@@ -49,7 +49,7 @@ namespace nealog
         PatternFormatter formatter_{""};
     };
 
- 
+
 } // namespace nealog
 
 #ifdef NEALOG_HEADERONLY
