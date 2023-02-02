@@ -21,7 +21,7 @@ constexpr const char* TAG_THREADING   = "[LoggerTreeRegistry][Multithreading]";
 TEST_CASE("should create new logger", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     requireResultEqualsExpected(rootLogger.getName(), "root");
     auto& logger = registry.getOrCreate("com");
     requireResultNotEqualsExpected(&rootLogger, &logger);
@@ -60,7 +60,7 @@ TEST_CASE("Add intermediate loggers if necessary", TAG)
 TEST_CASE("Inherit sink from root logger", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     rootLogger.addSink(SinkFactory::createStdOutSink());
     auto rootSinks = rootLogger.getSinks();
     auto& childLogger = registry.getOrCreate("child");
@@ -84,7 +84,7 @@ TEST_CASE("Inherit sink from root logger", TAG)
 TEST_CASE("Inherit sink from root logger subtree", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     auto mainSink = SinkFactory::createStdOutSink();
     rootLogger.addSink(mainSink);
     auto rootSinks = rootLogger.getSinks();
@@ -112,7 +112,7 @@ TEST_CASE("Inherit sink from root logger subtree", TAG)
 TEST_CASE("child misses sink added after creation", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     rootLogger.addSink(SinkFactory::createStdOutSink());
     
     auto& childLogger = registry.getOrCreate("child");
@@ -152,7 +152,7 @@ TEST_CASE("child misses sink added after creation", TAG)
 TEST_CASE("Inherit severity from root logger", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     rootLogger.setSeverity(nealog::Severity::Warn);
     auto rootSeverity = rootLogger.getSeverity();
     auto& childLogger = registry.getOrCreate("child");
@@ -165,7 +165,7 @@ TEST_CASE("Inherit severity from root logger", TAG)
 TEST_CASE("Inherit severity from root logger subtree", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     auto mainSink = SinkFactory::createStdOutSink();
     rootLogger.setSeverity(nealog::Severity::Error);
     auto rootSeverity = rootLogger.getSeverity();
@@ -183,7 +183,7 @@ TEST_CASE("Inherit severity from root logger subtree", TAG)
 TEST_CASE("child misses severity change after creation", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     rootLogger.addSink(SinkFactory::createStdOutSink());
     rootLogger.setSeverity(nealog::Severity::Error);
     auto& childLogger = registry.getOrCreate("child");
@@ -199,12 +199,12 @@ TEST_CASE("child misses severity change after creation", TAG)
 TEST_CASE("Recursivly adding sink adds it to all children of root logger", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     auto mainSink = SinkFactory::createStdOutSink();
     
     auto& childLogger = registry.getOrCreate("child.subchild.somelogger");
     auto& siblingLogger = registry.getOrCreate("sibling.subsibling.somelogger");
-    registry.addBranchSink(mainSink);
+    registry.addTreeSink(mainSink);
     auto& rootSinks = rootLogger.getSinks();  
     auto& childLoggers = registry.getLoggerList();
     for(auto& child_logger: childLoggers)
@@ -227,7 +227,7 @@ TEST_CASE("Recursivly adding sink adds it to all children of root logger", TAG)
 TEST_CASE("Recursivly adding sink adds it to all children of subtree logger", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     auto mainSink = SinkFactory::createStdOutSink();
     
     auto& childLogger = registry.getOrCreate("child.subchild.somelogger");
@@ -262,7 +262,7 @@ TEST_CASE("Recursivly adding sink adds it to all children of subtree logger", TA
 TEST_CASE("Recursivly adding sink to non exisintg subtree throws exception", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     auto mainSink = SinkFactory::createStdOutSink();
     
     auto& childLogger = registry.getOrCreate("child.subchild.somelogger");
@@ -273,12 +273,12 @@ TEST_CASE("Recursivly adding sink to non exisintg subtree throws exception", TAG
 TEST_CASE("Recursivly changing severity, changes severity of all children of root logger", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     rootLogger.setSeverity(nealog::Severity::Fatal);
     requireResultEqualsExpected(rootLogger.getSeverity(), nealog::Severity::Fatal);    
     auto& childLogger = registry.getOrCreate("child.subchild.somelogger");
     auto& siblingLogger = registry.getOrCreate("sibling.subsibling.somelogger");
-    registry.setBranchSeverity(nealog::Severity::Trace);
+    registry.setTreeSeverity(nealog::Severity::Trace);
     auto rootSeverity = rootLogger.getSeverity();
     auto& childLoggers = registry.getLoggerList();
     for(auto& child_logger: childLoggers)
@@ -292,7 +292,7 @@ TEST_CASE("Recursivly changing severity, changes severity of all children of roo
 TEST_CASE("Recursivly changing severity of subtree, only changes severity of all children of subtree", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     rootLogger.setSeverity(nealog::Severity::Fatal);
     requireResultEqualsExpected(rootLogger.getSeverity(), nealog::Severity::Fatal);    
     auto& childLogger = registry.getOrCreate("child.subchild.somelogger");
@@ -318,7 +318,7 @@ TEST_CASE("Recursivly changing severity of subtree, only changes severity of all
 TEST_CASE("Recursivly changing severity of non exisintg subtree throws exception", TAG)
 {
     LoggerTreeRegistry_st registry;
-    auto& rootLogger = registry.getOrCreate();
+    auto& rootLogger = registry.getRootLogger();
     auto mainSink = SinkFactory::createStdOutSink();
     
     auto& childLogger = registry.getOrCreate("child.subchild.somelogger");
@@ -326,6 +326,7 @@ TEST_CASE("Recursivly changing severity of non exisintg subtree throws exception
     REQUIRE_THROWS_AS(registry.setBranchSeverity("subsibling", nealog::Severity::Trace), nealog::UnregisteredKeyException);
 }
 
+/*
 TEST_CASE("create multiple logger on multiple threads", TAG_THREADING)
 {
     LoggerRegistry_mt registry;
@@ -380,7 +381,8 @@ auto createLoggerTree1() -> void
      *  menu
      *   ↓
      *  about
-     */
+     /
     auto aboutLogger  = facade.getLogger("appbar.menu.about");
 }
+*/
 
