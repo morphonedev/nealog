@@ -20,19 +20,19 @@ namespace nealog
      ******************************/
     // {{{
 
-    NL_INLINE Logger::Logger(const std::string_view& name) noexcept
+    NL_INLINE Logger::Logger(std::string_view name) noexcept
+    : name_{name}
     {
-        name_ = name;
     }
 
 
 
-    NL_INLINE Logger::Logger(const std::string_view& name, Severity defaultSeverity) noexcept : name_{name}
+    NL_INLINE Logger::Logger(std::string_view name, Severity defaultSeverity) noexcept : name_{name}
     {
         setSeverity(defaultSeverity);
     }
 
-    NL_INLINE Logger::Logger(const std::string_view& name, Severity defaultSeverity,
+    NL_INLINE Logger::Logger(std::string_view name, Severity defaultSeverity,
                              std::vector<Sink::SPtr>&& parentSinks)
         : name_{name}, sinks_{parentSinks}
     {
@@ -53,14 +53,8 @@ namespace nealog
 
 
 
-    NL_INLINE auto Logger::log(Severity messageSeverity, const std::string_view& message) -> void
+    NL_INLINE auto Logger::log(Severity messageSeverity, std::string_view message) -> void
     {
-        if (sinks_.empty())
-        {
-            parent_->log(messageSeverity, message);
-            return;
-        }
-
         if (messageSeverity >= severity_)
         {
             std::string formattedMessage = formatter_.format(message);
@@ -70,7 +64,7 @@ namespace nealog
 
 
 
-    NL_INLINE auto Logger::writeToSinks(Severity severity, const std::string_view& message) -> void
+    NL_INLINE auto Logger::writeToSinks(Severity severity, std::string_view message) -> void
     {
         for (Sink::SPtr& sink : sinks_)
         {
@@ -94,42 +88,42 @@ namespace nealog
 
 
 
-    NL_INLINE auto Logger::trace(const std::string_view& message) -> void
+    NL_INLINE auto Logger::trace(std::string_view message) -> void
     {
         log(Severity::Trace, message);
     }
 
 
 
-    NL_INLINE auto Logger::debug(const std::string_view& message) -> void
+    NL_INLINE auto Logger::debug(std::string_view message) -> void
     {
         log(Severity::Debug, message);
     }
 
 
 
-    NL_INLINE auto Logger::info(const std::string_view& message) -> void
+    NL_INLINE auto Logger::info(std::string_view message) -> void
     {
         log(Severity::Info, message);
     }
 
 
 
-    NL_INLINE auto Logger::warn(const std::string_view& message) -> void
+    NL_INLINE auto Logger::warn(std::string_view message) -> void
     {
         log(Severity::Warn, message);
     }
 
 
 
-    NL_INLINE auto Logger::error(const std::string_view& message) -> void
+    NL_INLINE auto Logger::error(std::string_view message) -> void
     {
         log(Severity::Error, message);
     }
 
 
 
-    NL_INLINE auto Logger::fatal(const std::string_view& message) -> void
+    NL_INLINE auto Logger::fatal(std::string_view message) -> void
     {
         log(Severity::Fatal, message);
     }
@@ -143,17 +137,7 @@ namespace nealog
 
 
 
-    NL_INLINE auto Logger::setParent(LoggerBase::SPtr parent) -> void
-    {
-        parent_ = parent;
-    }
     // }}}
 
-
-
-    NL_INLINE auto ParentHolder::setParentForLogger(LoggerBase::SPtr parent, LoggerBase::SPtr child) -> void
-    {
-        child->setParent(parent);
-    }
 
 } // namespace nealog
