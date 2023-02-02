@@ -63,6 +63,7 @@ namespace nealog
     template <class Mutex>
     auto LoggerTreeRegistry<Mutex>::getOrCreate(std::string_view name) -> Logger&
     {
+        std::scoped_lock<Mutex> lock{mutex_};
         auto result = loggerTree_.find(name);
 
         if (result != std::end(loggerTree_))
@@ -79,7 +80,82 @@ namespace nealog
     template <class Mutex>
     auto LoggerTreeRegistry<Mutex>::getLoggerList() -> const LoggerTreeRegistry<Mutex>::LoggerStorage&
     {
+        std::scoped_lock<Mutex> lock{mutex_};
         return loggerTree_;
+    }
+
+
+
+    template <class Mutex>
+    auto LoggerTreeRegistry<Mutex>::setBranchSeverity(std::string_view branchRoot, Severity newLevel) -> void
+    {
+        std::scoped_lock<Mutex> lock{mutex_};
+        auto result = loggerTree_.find(branchRoot);
+        if (result != std::end(loggerTree_))
+        {
+            result->second.setSeverity(newLevel);
+        }
+        else
+        {
+            throw UnregisteredKeyException(std::string{branchRoot});
+        }
+        for (auto& [name, logger] : loggerTree_)
+        {
+            if (utility::beginsWith(name, branchRoot))
+            {
+                logger.setSeverity(newLevel);
+            }
+        }
+    }
+
+
+
+    template <class Mutex>
+    auto LoggerTreeRegistry<Mutex>::setTreeSeverity(Severity newLevel) -> void
+    {
+        std::scoped_lock<Mutex> lock{mutex_};
+        rootLogger_.setSeverity(newLevel);
+        for (auto& [name, logger] : loggerTree_)
+        {
+            logger.setSeverity(newLevel);
+        }
+    }
+
+
+
+    template <class Mutex>
+    auto LoggerTreeRegistry<Mutex>::addTreeSink(const Sink::SPtr& sink) -> void
+    {
+        std::scoped_lock<Mutex> lock{mutex_};
+        rootLogger_.addSink(sink);
+        for (auto& [name, logger] : loggerTree_)
+        {
+            logger.addSink(sink);
+        }
+    }
+
+
+
+    template <class Mutex>
+    auto LoggerTreeRegistry<Mutex>::addBranchSink(std::string_view branchRoot, const Sink::SPtr& sink) -> void
+    {
+        std::scoped_lock<Mutex> lock{mutex_};
+        auto result = loggerTree_.find(branchRoot);
+        if (result != std::end(loggerTree_))
+        {
+            result->second.addSink(sink);
+        }
+        else
+        {
+            throw UnregisteredKeyException(std::string{branchRoot});
+        }
+        for (auto& [name, logger] : loggerTree_)
+        {
+            if (utility::beginsWith(name, branchRoot))
+            {
+                logger.addSink(sink);
+            }
+        }
     }
 
 
@@ -108,74 +184,6 @@ namespace nealog
     }
 
 
-
-    template <class Mutex>
-    auto LoggerTreeRegistry<Mutex>::setBranchSeverity(std::string_view branchRoot, Severity newLevel) -> void
-    {
-        auto result = loggerTree_.find(branchRoot);
-        if (result != std::end(loggerTree_))
-        {
-            result->second.setSeverity(newLevel);
-        }
-        else
-        {
-            throw UnregisteredKeyException(std::string{branchRoot});
-        }
-        for (auto& [name, logger] : loggerTree_)
-        {
-            if (utility::beginsWith(name, branchRoot))
-            {
-                logger.setSeverity(newLevel);
-            }
-        }
-    }
-
-
-
-    template <class Mutex>
-    auto LoggerTreeRegistry<Mutex>::setTreeSeverity(Severity newLevel) -> void
-    {
-        rootLogger_.setSeverity(newLevel);
-        for (auto& [name, logger] : loggerTree_)
-        {
-            logger.setSeverity(newLevel);
-        }
-    }
-
-
-
-    template <class Mutex>
-    auto LoggerTreeRegistry<Mutex>::addTreeSink(const Sink::SPtr& sink) -> void
-    {
-        rootLogger_.addSink(sink);
-        for (auto& [name, logger] : loggerTree_)
-        {
-            logger.addSink(sink);
-        }
-    }
-
-
-
-    template <class Mutex>
-    auto LoggerTreeRegistry<Mutex>::addBranchSink(std::string_view branchRoot, const Sink::SPtr& sink) -> void
-    {
-        auto result = loggerTree_.find(branchRoot);
-        if (result != std::end(loggerTree_))
-        {
-            result->second.addSink(sink);
-        }
-        else
-        {
-            throw UnregisteredKeyException(std::string{branchRoot});
-        }
-        for (auto& [name, logger] : loggerTree_)
-        {
-            if (utility::beginsWith(name, branchRoot))
-            {
-                logger.addSink(sink);
-            }
-        }
-    }
 
     // }}}
 
