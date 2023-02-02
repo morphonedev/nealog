@@ -207,7 +207,7 @@ TEST_CASE("Recursivly adding sink adds it to all children of root logger", TAG)
     auto& childLogger   = registry.getOrCreate("child.subchild.somelogger");
     auto& siblingLogger = registry.getOrCreate("sibling.subsibling.somelogger");
     registry.addTreeSink(mainSink);
-    auto& rootSinks    = rootLogger.getSinks();
+    auto rootSinks    = rootLogger.getSinks();
     auto& childLoggers = registry.getLoggerList();
     for (auto& child_logger : childLoggers)
     {
