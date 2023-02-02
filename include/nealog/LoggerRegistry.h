@@ -120,7 +120,7 @@ namespace nealog
         }
         for (auto& [name, logger] : loggerTree_)
         {
-            if (utility::beginswith(name, branchRoot))
+            if (utility::beginsWith(name, branchRoot))
             {
                 logger.setSeverity(newLevel);
             }
@@ -170,7 +170,7 @@ namespace nealog
         }
         for (auto& [name, logger] : loggerTree_)
         {
-            if (utility::beginswith(name, branchRoot))
+            if (utility::beginsWith(name, branchRoot))
             {
                 logger.addSink(sink);
             }
