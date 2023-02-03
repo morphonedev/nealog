@@ -25,7 +25,7 @@ namespace nealog
         }
         auto getOrCreate(std::string_view name) -> LoggerClass&;
         auto getRootLogger(void) -> LoggerClass&;
-        auto getLoggerList() -> const typename LoggerStorage&;
+        auto getLoggerList() -> const LoggerStorage&;
         auto setBranchSeverity(std::string_view branchRoot, Severity newLevel) -> void;
         auto setTreeSeverity(Severity newLevel) -> void;
         auto addTreeSink(const Sink::SPtr& sink) -> void;
@@ -78,7 +78,7 @@ namespace nealog
 
 
     template <class LoggerClass, class Mutex>
-    auto LoggerTreeRegistry<LoggerClass, Mutex>::getLoggerList() -> const typename LoggerTreeRegistry<LoggerClass, Mutex>::LoggerStorage&
+    auto LoggerTreeRegistry<LoggerClass, Mutex>::getLoggerList() -> const LoggerTreeRegistry<LoggerClass, Mutex>::LoggerStorage&
     {
         std::scoped_lock<Mutex> lock{mutex_};
         return loggerTree_;
