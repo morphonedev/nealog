@@ -24,7 +24,7 @@ namespace nealog
         {
         }
         auto getOrCreate(std::string_view name) -> LoggerClass&;
-        auto getRootLogger(void) -> typename LoggerClass&;
+        auto getRootLogger(void) -> LoggerClass&;
         auto getLoggerList() -> const typename LoggerStorage&;
         auto setBranchSeverity(std::string_view branchRoot, Severity newLevel) -> void;
         auto setTreeSeverity(Severity newLevel) -> void;
