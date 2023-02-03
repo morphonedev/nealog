@@ -45,7 +45,6 @@ namespace nealog
     }
 
 
-
     NL_INLINE auto Logger::addSink(const Sink::SPtr& sink) -> void
     {
         sinks_.emplace_back(sink);
