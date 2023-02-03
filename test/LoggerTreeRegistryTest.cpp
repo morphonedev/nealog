@@ -11,6 +11,7 @@
 #include <sstream>
 #include <string>
 #include <thread>
+#include <array>
 
 using namespace std::chrono_literals;
 using namespace nealog;
@@ -333,7 +334,7 @@ TEST_CASE("Recursivly changing severity of non exisintg subtree throws exception
 TEST_CASE("create multiple logger on multiple threads", TAG_THREADING)
 {
     constexpr int RUNS{10000};
-    std::vector<std::string> t1_loggerNames{RUNS, ""}, t2_loggerNames{RUNS, ""};
+    std::array<std::string, RUNS> t1_loggerNames, t2_loggerNames;
 
     LoggerTreeRegistry_mt registry;
     std::atomic<int> count = 0;
@@ -357,39 +358,3 @@ TEST_CASE("create multiple logger on multiple threads", TAG_THREADING)
     threadTwo.join();
     requireResultEqualsExpected(count.load(), 2 * RUNS);
 }
-
-
-/*
-TEST_CASE("should log to parent if logger has no sinks", TAG_INTEGRATION)
-{
-    // arrange
-    const char* MESSAGE = "debug";
-    LoggerRegistry_st registry;
-    auto rootLogger = registry.getOrCreate("");
-    std::ostringstream oss;
-    rootLogger->addSink(SinkFactory::createStreamSink(oss));
-    auto logger = registry.getOrCreate("com");
-
-    // act
-    logger->debug(MESSAGE);
-
-    // assert
-    requireResultEqualsExpected(oss.str(), MESSAGE);
-}
-
-auto createLoggerTree1() -> void
-{
-    TestFacade facade;
-    /* spans a logtree
-     *
-     * [root]
-     *   ↓
-     *  appbar
-     *   ↓
-     *  menu
-     *   ↓
-     *  about
-     /
-    auto aboutLogger  = facade.getLogger("appbar.menu.about");
-}
-*/

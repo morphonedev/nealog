@@ -12,27 +12,27 @@
 namespace nealog
 {
 
-    template <class Mutex>
+    template <class LoggerClass, class Mutex>
     class LoggerTreeRegistry
     {
       public:
-        using LoggerStorage = std::unordered_map<std::string_view, Logger>;
+        using LoggerStorage = std::unordered_map<std::string_view, LoggerClass>;
 
 
         LoggerTreeRegistry(unsigned char delim = '.', std::string rootLoggerName = "root")
             : rootLoggerName_{rootLoggerName}, delimiter_{delim}, rootLogger_{rootLoggerName_, Severity::Trace}
         {
         }
-        auto getOrCreate(std::string_view name) -> Logger&;
-        auto getRootLogger(void) -> Logger&;
-        auto getLoggerList() -> const LoggerStorage&;
+        auto getOrCreate(std::string_view name) -> LoggerClass&;
+        auto getRootLogger(void) -> typename LoggerClass&;
+        auto getLoggerList() -> const typename LoggerStorage&;
         auto setBranchSeverity(std::string_view branchRoot, Severity newLevel) -> void;
         auto setTreeSeverity(Severity newLevel) -> void;
         auto addTreeSink(const Sink::SPtr& sink) -> void;
         auto addBranchSink(std::string_view branchRoot, const Sink::SPtr& sink) -> void;
 
       private:
-        auto registerLogger(std::string_view name) -> Logger&;
+        auto registerLogger(std::string_view name) -> LoggerClass&;
 
       private:
         const std::string rootLoggerName_;
@@ -43,8 +43,8 @@ namespace nealog
     };
 
 
-    using LoggerTreeRegistry_st = LoggerTreeRegistry<FakeMutex>;
-    using LoggerTreeRegistry_mt = LoggerTreeRegistry<RealMutex>;
+    using LoggerTreeRegistry_st = LoggerTreeRegistry<Logger, FakeMutex>;
+    using LoggerTreeRegistry_mt = LoggerTreeRegistry<Logger, RealMutex>;
 
 
     /******************************
@@ -52,16 +52,16 @@ namespace nealog
      ******************************/
     // {{{
 
-    template <class Mutex>
-    auto LoggerTreeRegistry<Mutex>::getRootLogger(void) -> Logger&
+    template <class LoggerClass, class Mutex>
+    auto LoggerTreeRegistry<LoggerClass, Mutex>::getRootLogger(void) -> LoggerClass&
     {
         return rootLogger_;
     }
 
 
 
-    template <class Mutex>
-    auto LoggerTreeRegistry<Mutex>::getOrCreate(std::string_view name) -> Logger&
+    template <class LoggerClass, class Mutex>
+    auto LoggerTreeRegistry<LoggerClass, Mutex>::getOrCreate(std::string_view name) -> LoggerClass&
     {
         std::scoped_lock<Mutex> lock{mutex_};
         auto result = loggerTree_.find(name);
@@ -77,8 +77,8 @@ namespace nealog
     }
 
 
-    template <class Mutex>
-    auto LoggerTreeRegistry<Mutex>::getLoggerList() -> const LoggerTreeRegistry<Mutex>::LoggerStorage&
+    template <class LoggerClass, class Mutex>
+    auto LoggerTreeRegistry<LoggerClass, Mutex>::getLoggerList() -> const typename LoggerTreeRegistry<LoggerClass, Mutex>::LoggerStorage&
     {
         std::scoped_lock<Mutex> lock{mutex_};
         return loggerTree_;
@@ -86,8 +86,8 @@ namespace nealog
 
 
 
-    template <class Mutex>
-    auto LoggerTreeRegistry<Mutex>::setBranchSeverity(std::string_view branchRoot, Severity newLevel) -> void
+    template <class LoggerClass, class Mutex>
+    auto LoggerTreeRegistry<LoggerClass, Mutex>::setBranchSeverity(std::string_view branchRoot, Severity newLevel) -> void
     {
         std::scoped_lock<Mutex> lock{mutex_};
         auto result = loggerTree_.find(branchRoot);
@@ -110,8 +110,8 @@ namespace nealog
 
 
 
-    template <class Mutex>
-    auto LoggerTreeRegistry<Mutex>::setTreeSeverity(Severity newLevel) -> void
+    template <class LoggerClass, class Mutex>
+    auto LoggerTreeRegistry<LoggerClass, Mutex>::setTreeSeverity(Severity newLevel) -> void
     {
         std::scoped_lock<Mutex> lock{mutex_};
         rootLogger_.setSeverity(newLevel);
@@ -123,8 +123,8 @@ namespace nealog
 
 
 
-    template <class Mutex>
-    auto LoggerTreeRegistry<Mutex>::addTreeSink(const Sink::SPtr& sink) -> void
+    template <class LoggerClass, class Mutex>
+    auto LoggerTreeRegistry<LoggerClass, Mutex>::addTreeSink(const Sink::SPtr& sink) -> void
     {
         std::scoped_lock<Mutex> lock{mutex_};
         rootLogger_.addSink(sink);
@@ -136,8 +136,8 @@ namespace nealog
 
 
 
-    template <class Mutex>
-    auto LoggerTreeRegistry<Mutex>::addBranchSink(std::string_view branchRoot, const Sink::SPtr& sink) -> void
+    template <class LoggerClass, class Mutex>
+    auto LoggerTreeRegistry<LoggerClass, Mutex>::addBranchSink(std::string_view branchRoot, const Sink::SPtr& sink) -> void
     {
         std::scoped_lock<Mutex> lock{mutex_};
         auto result = loggerTree_.find(branchRoot);
@@ -161,13 +161,13 @@ namespace nealog
 
 
     /********************** Private methods *******************************/
-    template <class Mutex>
-    auto LoggerTreeRegistry<Mutex>::registerLogger(std::string_view name) -> Logger&
+    template <class LoggerClass, class Mutex>
+    auto LoggerTreeRegistry<LoggerClass, Mutex>::registerLogger(std::string_view name) -> LoggerClass&
     {
         auto result = name.rfind(delimiter_);
         if (result != std::string_view::npos) // found at least one delimiter
         {
-            Logger& parentLogger = getOrCreate(name.substr(0, result));
+            LoggerClass& parentLogger = getOrCreate(name.substr(0, result));
             // inherit from parentLogger
             auto result = loggerTree_.emplace(std::make_pair<std::string_view, Logger>(
                 std::string_view(name), Logger{name, parentLogger.getSeverity(), parentLogger.getSinks()}));
